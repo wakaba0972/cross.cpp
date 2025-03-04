@@ -187,6 +187,4 @@ int main(){
         Sleep(1);
         system("cls");
     }
-
-    return 0;
 }
