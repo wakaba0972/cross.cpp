@@ -7,18 +7,20 @@
 using namespace std;
 
 #define WIDTH 80
-#define HEIGHT 30
+#define HEIGHT 32
 #define DENSITY 30
 #define X_OFFSET 20
-#define Y_OFFSET 10
+#define Y_OFFSET 12
 #define X_DTHETA 1
 #define Y_DTHETA 3
 #define MAX_X_THETA 628
+#define K 2
 
 const string LUMINANCE = ".,-~:;=!*#$@"; //亮度表
+//const string SIGNTABLE = "#-!*@%"; //符號表
 
 char display[HEIGHT][WIDTH];
-short zbuffer[HEIGHT][WIDTH];
+int zbuffer[HEIGHT][WIDTH];
 float sin_table[MAX_X_THETA];
 float cos_table[MAX_X_THETA];
 
@@ -73,17 +75,16 @@ class face{
                 pt3d p = center + vertex[0] + u * i;
                 for(int j = 0; j < DENSITY; j++){
                     pt3d q = (p + v * j);
-                    int qy = (int)q.y + Y_OFFSET;
-                    int qx = (int)q.x + X_OFFSET;
+                    int qy = q.y + Y_OFFSET;
+                    int qx = q.x + X_OFFSET;
+
+                    if(qy < 0 || qy >= HEIGHT || qx < 0 ||qx >= WIDTH) continue;
 
                     //zbuffer
-                    //if(q.z < zbuffer[qy][qx]) continue;
-                    //zbuffer[qy][qx] = q.z;
+                    if(zbuffer[qy][qx] != 0 && q.z * 1000 < zbuffer[qy][qx]) continue;
+                    zbuffer[qy][qx] = q.z * 1000;
 
-                    if(qy >= 0 && qy < HEIGHT && qx >= 0 && qx < WIDTH) {
-                        display[qy][qx] = LUMINANCE[L];
-                        //display[qy][qx] = id + '0';
-                    }
+                    display[qy][qx] = LUMINANCE[L];
                 }
             }
         }
@@ -155,7 +156,7 @@ class Cross{
                 for(int j = 0; j < WIDTH; j++) s += display[i][j];
                 s += '\n';
             }
-            cout << '\n' << s;
+            cout << s;
         }
 
         void rotate(){
@@ -178,7 +179,7 @@ int main(){
 
     build_table();
     Cross c;
-    
+
     while(1){
         memset(display, ' ', sizeof(display));
         memset(zbuffer, 0, sizeof(zbuffer));
